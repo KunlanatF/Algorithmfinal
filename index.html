@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Algorithm Animator – ทบทวนปลายภาค (สัปดาห์ 7–9)</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Sarabun','Segoe UI',Tahoma,sans-serif;background:#f1f5f9;color:#1e293b;display:flex;height:100vh}
+nav{width:270px;background:#1e293b;color:#e2e8f0;overflow-y:auto;padding:12px;flex-shrink:0}
+nav h1{font-size:18px;margin:4px 0 10px}
+nav .grp{font-size:12px;color:#94a3b8;margin:14px 0 4px;font-weight:700}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#e2e8f0;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit}
+nav button:hover{background:#334155}
+nav button.on{background:#3b82f6;color:#fff}
+main{flex:1;overflow-y:auto;padding:16px 24px}
+h2{margin:0 0 8px}
+.desc{background:#fff;border-left:4px solid #3b82f6;padding:10px 14px;border-radius:6px;font-size:14.5px;line-height:1.65}
+.f{font-family:Consolas,monospace;background:#eef2ff;padding:1px 6px;border-radius:4px;white-space:nowrap}
+.tip{color:#b45309}
+.inputs{margin:10px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.inputs label{font-size:13px;display:flex;flex-direction:column;gap:2px}
+.inputs input{padding:5px 8px;border:1px solid #cbd5e1;border-radius:5px;font-size:14px;min-width:170px;font-family:inherit}
+button.act{padding:7px 14px;border:0;border-radius:6px;background:#0ea5e9;color:#fff;cursor:pointer;font-family:inherit;font-size:14px}
+#stage{background:#fff;border-radius:10px;padding:16px;min-height:280px;margin-top:10px;overflow-x:auto;box-shadow:0 1px 3px #0002}
+#stage.anim{animation:fade .35s}
+@keyframes fade{from{opacity:.55}to{opacity:1}}
+#msg{margin-top:10px;background:#fefce8;border:1px solid #fde68a;padding:10px 14px;border-radius:8px;min-height:46px;font-size:15px;line-height:1.6}
+.controls{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;position:sticky;bottom:0;background:#f1f5f9;padding:8px 0}
+.controls button{padding:8px 14px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit}
+.controls button.primary{background:#2563eb;color:#fff;border-color:#2563eb;min-width:90px}
+.prog{flex:1;min-width:120px;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden}
+#bar{height:100%;background:#2563eb;width:0;transition:width .3s}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12.5px}
+.legend span{padding:2px 8px;border-radius:4px;border:2px solid}
+.row{display:flex;align-items:center;margin-top:18px;gap:3px}
+.lab{width:76px;font-weight:700;font-size:13px;color:#475569;flex-shrink:0}
+.cell{min-width:40px;height:40px;border:2px solid #cbd5e1;border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;font-weight:600;background:#fff;padding:0 4px;transition:all .3s}
+.cell small{position:absolute;top:-17px;font-size:10.5px;color:#94a3b8;font-weight:400}
+.cell.ch{width:40px;min-width:40px;padding:0}
+.cell.key{min-width:62px;font-size:12px}
+.cell.slot{background:#e2e8f0}
+.cell.ew{width:96px;height:30px;margin-top:4px;font-size:13px}
+.slide{display:flex;gap:3px;transform:translateX(var(--to));animation:slide .6s ease}
+@keyframes slide{from{transform:translateX(var(--from))}to{transform:translateX(var(--to))}}
+table.m{border-collapse:collapse;margin:4px 0}
+table.m td,table.m th{border:1px solid #cbd5e1;min-width:40px;height:34px;text-align:center;padding:2px 7px;transition:all .3s}
+table.m th{background:#f1f5f9;font-size:13px}
+table.board td{width:52px;height:46px;position:relative}
+.cn{color:#d97706;font-size:20px;position:absolute;left:4px;top:0}
+.fv{font-weight:700}
+.mt{display:inline-block;margin-right:16px}
+.mtt{font-weight:700;font-size:13px;margin:6px 0 2px}
+.flex{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.hash{display:flex;gap:4px}
+.bucket{display:flex;flex-direction:column;align-items:center;gap:6px}
+.coin{width:46px;height:46px;border-radius:50%;background:#fef3c7;border:3px solid #d97706;display:flex;align-items:center;justify-content:center;font-weight:700}
+.big{font-size:18px;margin-top:16px}
+.tn{display:flex;flex-direction:column;align-items:center;position:relative}
+.tch{display:flex;margin-top:24px;position:relative;align-items:flex-start}
+.tch::before{content:'';position:absolute;top:-24px;left:50%;height:24px;border-left:2px solid #94a3b8}
+.tch>.tn{padding:16px 7px 0}
+.tch>.tn::before{content:'';position:absolute;top:0;left:50%;height:16px;border-left:2px solid #94a3b8}
+.tch>.tn::after{content:'';position:absolute;top:0;left:0;right:0;border-top:2px solid #94a3b8}
+.tch>.tn:first-child::after{left:50%}
+.tch>.tn:last-child::after{right:50%}
+.tn.ghost .tnode{visibility:hidden}
+.tch>.tn.ghost::before{display:none}
+.tnode{min-width:44px;height:44px;border-radius:22px;border:2px solid #475569;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;padding:0 6px;line-height:1.1;font-size:14px;transition:all .3s}
+.tnode small{font-weight:400;font-size:11px}
+.bnode{display:flex;border:2px solid #475569;border-radius:6px;background:#fff}
+.bnode span{padding:6px 9px;border-right:1px solid #cbd5e1;font-weight:600}
+.bnode span:last-child{border-right:0}
+.bnode .hk{background:#93c5fd}
+.bit{position:absolute;top:0;left:calc(50% + 4px);font-size:12px;color:#dc2626;font-weight:700}
+.forest{display:flex;gap:30px;align-items:flex-start;flex-wrap:wrap}
+.treewrap{display:flex;justify-content:center;padding:10px}
+svg.g{width:440px;max-width:100%}
+line.e{stroke:#cbd5e1;stroke-width:3}
+line.tree{stroke:#16a34a;stroke-width:6}
+line.cand{stroke:#f59e0b;stroke-width:4;stroke-dasharray:7 4}
+line.sel{stroke:#2563eb;stroke-width:7}
+line.rej{stroke:#dc2626;stroke-width:4;stroke-dasharray:3 4}
+circle.wbg{fill:#fff;stroke:#e2e8f0}
+text.wt{font-size:12px;text-anchor:middle;font-weight:700;fill:#334155}
+circle.n{fill:#fff;stroke:#475569;stroke-width:2.5}
+circle.n.nin{fill:#86efac;stroke:#16a34a}
+circle.n.nfr{fill:#fed7aa;stroke:#ea580c}
+circle.n.ncur{fill:#fde047;stroke:#ca8a04;stroke-width:4}
+text.nt{font-size:17px;text-anchor:middle;font-weight:700}
+text.nl{font-size:13px;text-anchor:middle;fill:#1d4ed8;font-weight:700}
+.gleg{font-size:12.5px;margin-top:6px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.gleg i{display:inline-block;margin-right:4px;vertical-align:middle}
+.gleg i.l{width:26px;height:0;border-top:5px solid}
+.gleg i.l.tree{border-color:#16a34a}.gleg i.l.cand{border-top-style:dashed;border-color:#f59e0b}.gleg i.l.sel{border-color:#2563eb}.gleg i.l.rej{border-top-style:dotted;border-color:#dc2626}
+.gleg i.c{width:14px;height:14px;border-radius:50%;border:2px solid}
+.gleg i.c.nin{background:#86efac;border-color:#16a34a}.gleg i.c.nfr{background:#fed7aa;border-color:#ea580c}.gleg i.c.ncur{background:#fde047;border-color:#ca8a04}
+.elist{display:flex;flex-direction:column}
+/* highlight classes (ต้องอยู่ท้าย) */
+.cur{background:#fde047;border-color:#ca8a04}
+.cmp{background:#fdba74;border-color:#ea580c}
+.pick{background:#93c5fd;border-color:#2563eb}
+.done{background:#86efac;border-color:#16a34a}
+.bad{background:#fca5a5;border-color:#dc2626}
+.cell.cur,.cell.pick,.cell.done,.cell.bad,.coin.pick,.tnode.cur,.tnode.pick{animation:pop .45s}
+@keyframes pop{0%{transform:scale(.8)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (max-width:768px){
+ body{flex-direction:column;height:auto}
+ nav{width:100%;max-height:32vh;padding:8px}
+ nav h1{font-size:15px;margin:2px 0 4px}
+ main{padding:10px;overflow:visible}
+ .lab{width:56px;font-size:12px}
+ .cell{min-width:32px;height:34px;font-size:13px}
+ .cell.ch{width:30px;min-width:30px}
+ .controls button{padding:7px 9px;font-size:13px}
+ .controls label{width:100%}
+}
+</style>
+</head>
+<body>
+<nav><h1>🎬 Algorithm Animator</h1><div id="menu"></div></nav>
+<main>
+<h2 id="title"></h2>
+<div class="desc" id="desc"></div>
+<div class="inputs" id="inputs"></div>
+<div id="stage"></div>
+<div class="legend"><span class="cur">กำลังพิจารณา</span><span class="cmp">ค่าที่นำมาเทียบ/อ้างอิง</span><span class="pick">ค่าที่อัปเดต/เลือก</span><span class="done">ผลลัพธ์/ตรงกัน</span><span class="bad">ไม่ตรง/ชนกัน/ปฏิเสธ</span></div>
+<div id="msg"></div>
+<div class="controls">
+<button id="bReset" title="เริ่มใหม่">⏮</button>
+<button id="bPrev">◀ ก่อนหน้า</button>
+<button id="bPlay" class="primary">▶ เล่น</button>
+<button id="bNext">ถัดไป ▶</button>
+<span id="cnt"></span>
+<div class="prog"><div id="bar"></div></div>
+<label>ช้า <input type="range" id="speed" min="300" max="3000" step="100" value="1900"> เร็ว</label>
+</div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const parseList=s=>s.split(/[,\s]+/).filter(x=>x).map(Number);
+const cls=(n,c)=>Object.fromEntries([...Array(n).keys()].map(i=>[i,c]));
+const f2=x=>Math.round(x*1000)/1000;
+const inf=x=>x===Infinity?'∞':x;
+const clean=s=>s.toUpperCase().replace(/ /g,'_');
+const parseMat=s=>s.split(';').map(r=>r.trim().split(/[\s,]+/).map(x=>/^(∞|inf)$/i.test(x)?Infinity:+x));
+
+function rowH(label,arr,hl={},o={}){
+ return `<div class="row"><span class="lab">${label}</span>${arr.map((v,i)=>`<div class="cell ${hl[i]||''}">${o.noIdx?'':`<small>${o.idx?o.idx[i]:i}</small>`}${v===undefined||v===null?'':v}</div>`).join('')}</div>`;}
+function matH(M,rl,cl,hl={},corner='',title=''){
+ let h=`<div class="mt">${title?`<div class="mtt">${title}</div>`:''}<table class="m"><tr><th>${corner}</th>${cl.map(c=>`<th>${c}</th>`).join('')}</tr>`;
+ M.forEach((r,i)=>{h+=`<tr><th>${rl[i]}</th>${r.map((v,j)=>`<td class="${hl[i+','+j]||''}">${v===undefined||v===null?'':inf(v)}</td>`).join('')}</tr>`;});
+ return h+'</table></div>';}
+function treeH(nd){
+ if(!nd)return '<div class="tn ghost"><div class="tnode"></div></div>';
+ const has=nd.ch&&nd.ch.some(x=>x);
+ return `<div class="tn">${nd.e!==undefined?`<span class="bit">${nd.e}</span>`:''}<div class="${nd.box?'bnode':'tnode'} ${nd.cls||''}">${nd.l}</div>${has?`<div class="tch">${nd.ch.map(treeH).join('')}</div>`:''}</div>`;}
+
+/* ---------- กราฟตัวอย่างจากสไลด์สัปดาห์ 9 ---------- */
+const G={nodes:{a:[60,140],b:[220,50],c:[380,140],d:[380,290],e:[60,290],f:[220,210]},
+edges:[['a','b',3],['a','e',6],['a','f',5],['b','c',1],['b','f',4],['c','d',6],['c','f',4],['d','e',8],['d','f',5],['e','f',2]]};
+const ek=(u,v)=>u<v?u+v:v+u;
+const adj={};for(const n in G.nodes)adj[n]=[];G.edges.forEach(([u,v,w])=>{adj[u].push([v,w]);adj[v].push([u,w]);});
+for(const n in adj)adj[n].sort((x,y)=>x[0].localeCompare(y[0]));
+function graphH(o={}){const{nc={},ec={},nl={}}=o;let s='<svg viewBox="0 0 440 340" class="g">';
+ G.edges.forEach(([u,v,w])=>{const[x1,y1]=G.nodes[u],[x2,y2]=G.nodes[v],mx=(x1+x2)/2,my=(y1+y2)/2;
+  s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="e ${ec[u+v]||''}"/><circle cx="${mx}" cy="${my}" r="11" class="wbg"/><text x="${mx}" y="${my+4}" class="wt">${w}</text>`;});
+ for(const n in G.nodes){const[x,y]=G.nodes[n];s+=`<circle cx="${x}" cy="${y}" r="20" class="n ${nc[n]||''}"/><text x="${x}" y="${y+6}" class="nt">${n}</text>`;
+  if(nl[n]!==undefined)s+=`<text x="${x}" y="${(n==='d'||n==='e')?y+42:y-28}" class="nl">${nl[n]}</text>`;}
+ return s+'</svg>';}
+const gLeg='<div class="gleg"><span><i class="l tree"></i>ขอบในคำตอบ</span><span><i class="l cand"></i>ขอบที่กำลังพิจารณา</span><span><i class="l sel"></i>ขอบที่เลือก</span><span><i class="l rej"></i>ขอบที่ไม่ใช้</span><span><i class="c ncur"></i>โหนดปัจจุบัน</span><span><i class="c nin"></i>โหนดที่เสร็จแล้ว</span><span><i class="c nfr"></i>fringe/มีค่าชั่วคราว</span></div>';
+
+const W7='สัปดาห์ 7 · Space–Time Trade-offs',W8='สัปดาห์ 8 · Dynamic Programming',W9='สัปดาห์ 9 · Greedy Technique';
+const M=[];
+
+/* ================= WEEK 7 ================= */
+M.push({id:'ccs',g:W7,name:'Comparison Counting Sort',
+desc:`<b>แนวคิด (Input enhancement):</b> แต่ละตัวนับว่ามีกี่ตัวที่ <u>น้อยกว่า</u> มัน จำนวนนั้นคือ index ของมันในอาร์เรย์ผลลัพธ์ S<br>
+<b>ขั้นตอน:</b> <span class="f">ถ้า A[i] &lt; A[j] → Count[j]++ ไม่งั้น Count[i]++</span> แล้ว <span class="f">S[Count[i]] ← A[i]</span><br>
+<b>ประสิทธิภาพ:</b> <span class="f">C(n) = Σ<sub>i=0..n−2</sub> Σ<sub>j=i+1..n−1</sub> 1 = n(n−1)/2 ∈ Θ(n²)</span><br>
+<span class="tip">💡 ออกสอบบ่อย: เติมตาราง Count หลังแต่ละ pass (i = 0, 1, 2 …)</span>`,
+inputs:[['arr','อาร์เรย์ A','62, 31, 84, 96, 19, 47']],
+build(v){const A=parseList(v.arr),n=A.length,C=Array(n).fill(0),S=Array(n).fill('');const st=[];
+ const snap=(hA,hC,hS,m)=>st.push({h:rowH('A',A,hA)+rowH('Count',C,hC)+'<div style="height:12px"></div>'+rowH('S',S,hS),m});
+ snap({},{},{},'เริ่มต้น: Count[i] = 0 ทุกช่อง');let k=0;
+ for(let i=0;i<n-1;i++){for(let j=i+1;j<n;j++){k++;
+  if(A[i]<A[j]){C[j]++;snap({[i]:'cur',[j]:'cmp'},{[j]:'pick'},{},`Pass i=${i}, j=${j}: A[${i}]=${A[i]} &lt; A[${j}]=${A[j]} → <b>Count[${j}]++</b> (เปรียบเทียบครั้งที่ ${k})`);}
+  else{C[i]++;snap({[i]:'cur',[j]:'cmp'},{[i]:'pick'},{},`Pass i=${i}, j=${j}: A[${i}]=${A[i]} ≥ A[${j}]=${A[j]} → <b>Count[${i}]++</b> (เปรียบเทียบครั้งที่ ${k})`);}}
+  snap({[i]:'done'},{},{},`จบ Pass i = ${i} → Count = [${C.join(', ')}]`);}
+ snap({},cls(n,'done'),{},`นับเสร็จ! Final Count = [${C.join(', ')}] · เทียบทั้งหมด ${k} ครั้ง = n(n−1)/2`);
+ for(let i=0;i<n;i++){S[C[i]]=A[i];snap({[i]:'cur'},{[i]:'pick'},{[C[i]]:'done'},`A[${i}]=${A[i]} มี ${C[i]} ตัวที่น้อยกว่า → วางที่ <b>S[${C[i]}]</b>`);}
+ snap({},{},cls(n,'done'),`เรียงเสร็จ: S = [${S.join(', ')}]`);return st;}});
+
+M.push({id:'dist',g:W7,name:'Distribution Counting',
+desc:`<b>ใช้เมื่อ</b> ข้อมูลเป็นจำนวนเต็มในช่วงแคบ [l..u]<br>
+<b>ขั้นตอน:</b> ① นับความถี่ D[A[i]−l]++ ② สะสม <span class="f">D[j] ← D[j−1] + D[j]</span> (distribution value) ③ ไล่ A จาก<b>ขวาไปซ้าย</b>: <span class="f">j ← A[i]−l; S[D[j]−1] ← A[i]; D[j]−−</span><br>
+<b>ประสิทธิภาพ:</b> Θ(n) (ไม่มีการเปรียบเทียบเลย) และเป็นการเรียงแบบ stable<br>
+<span class="tip">💡 ตัวอย่างในสไลด์: values 11,12,13 · frequency 1,3,2 · distribution 1,4,6</span>`,
+inputs:[['arr','อาร์เรย์ A','13, 11, 12, 13, 12, 12']],
+build(v){const A=parseList(v.arr),l=Math.min(...A),u=Math.max(...A),vals=[];for(let x=l;x<=u;x++)vals.push(x);
+ const D=vals.map(()=>0),S=A.map(()=>''),st=[];
+ const snap=(hA,hD,hS,m)=>st.push({h:rowH('A',A,hA)+rowH('ค่า',vals,hD,{noIdx:true})+rowH('D',D,hD,{noIdx:true})+'<div style="height:10px"></div>'+rowH('S',S,hS),m});
+ snap({},{},{},`ค่าอยู่ในช่วง l = ${l} ถึง u = ${u} → สร้าง D ขนาด ${u-l+1} ช่อง ค่าเริ่มเป็น 0`);
+ A.forEach((x,i)=>{D[x-l]++;snap({[i]:'cur'},{[x-l]:'pick'},{},`① นับความถี่: A[${i}] = ${x} → D[${x}−${l}]++ → ${D[x-l]}`);});
+ for(let j=1;j<D.length;j++){D[j]+=D[j-1];snap({},{[j]:'pick',[j-1]:'cmp'},{},`② สะสม: D[${j}] = D[${j-1}] + ความถี่ = <b>${D[j]}</b> → ค่า ${vals[j]} ตัวสุดท้ายจะอยู่ที่ S[${D[j]-1}]`);}
+ for(let i=A.length-1;i>=0;i--){const j=A[i]-l,p=D[j]-1;S[p]=A[i];D[j]--;snap({[i]:'cur'},{[j]:'pick'},{[p]:'done'},`③ A[${i}] = ${A[i]} → S[D[${j}]−1] = <b>S[${p}]</b> แล้ว D[${j}]−− เหลือ ${D[j]}`);}
+ snap({},{},cls(A.length,'done'),`เรียงเสร็จ: S = [${S.join(', ')}] · เวลา Θ(n)`);return st;}});
+
+function tpH(T,P,off,prev,hT,hP){return `<div class="row"><span class="lab">Text</span>${[...T].map((c,i)=>`<div class="cell ch ${hT[i]||''}"><small>${i}</small>${c}</div>`).join('')}</div><div class="row"><span class="lab">Pattern</span><div class="slide" style="--from:${prev*43}px;--to:${off*43}px">${[...P].map((c,j)=>`<div class="cell ch ${hP[j]||''}">${c}</div>`).join('')}</div></div>`;}
+function shiftTblH(P,t,hc,title){const m=P.length,ch=[...new Set(P)].sort();
+ return `<div class="mt"><div class="mtt">${title}</div><table class="m"><tr><th>c</th>${ch.map(c=>`<th>${c}</th>`).join('')}<th>อื่น ๆ</th></tr><tr><th>t(c)</th>${ch.map(c=>`<td class="${hc===c?'pick':''}">${t[c]??m}</td>`).join('')}<td class="${hc&&!ch.includes(hc)?'pick':''}">${m}</td></tr></table></div>`;}
+function shiftTbl(P){const m=P.length,t={};for(let j=0;j<m-1;j++)t[P[j]]=m-1-j;return t;}
+
+M.push({id:'hors',g:W7,name:"Horspool's Algorithm",
+desc:`<b>แนวคิด:</b> สร้างตาราง shift ล่วงหน้า แล้วเทียบ pattern กับ text <b>จากขวาไปซ้าย</b><br>
+<b>ตาราง Shift:</b> <span class="f">Table[c] ← m</span> ทุกตัว แล้ว <span class="f">for j←0..m−2: Table[P[j]] ← m−1−j</span> (ไม่นับตัวสุดท้ายของ pattern)<br>
+<b>การเลื่อน:</b> ไม่ว่าจะ mismatch ตรงไหน ให้ใช้ t(c) โดย c = <b>ตัวอักษรใน text ที่อยู่ตรงกับตัวสุดท้ายของ pattern</b><br>
+<b>ประสิทธิภาพ:</b> worst Θ(nm), average Θ(n)<br><span class="tip">💡 BARBER: A=4, B=2, E=1, R=3, ตัวอื่น=6</span>`,
+inputs:[['text','Text','JIM_SAW_ME_IN_A_BARBERSHOP'],['pat','Pattern','BARBER']],
+build(v){const T=clean(v.text),P=clean(v.pat),m=P.length,n=T.length,st=[],t={};
+ st.push({h:tpH(T,P,0,0,{},{})+shiftTblH(P,t,null,'ตาราง Shift'),m:`① สร้างตาราง Shift: เริ่มให้ทุกตัวอักษรมีค่า m = ${m}`});
+ for(let j=0;j<m-1;j++){const re=t[P[j]]!==undefined;t[P[j]]=m-1-j;st.push({h:tpH(T,P,0,0,{},{[j]:'pick'})+shiftTblH(P,t,P[j],'ตาราง Shift'),m:`P[${j}] = '${P[j]}' → t('${P[j]}') = m−1−j = ${m}−1−${j} = <b>${m-1-j}</b>${re?' (ตัวซ้ำ เขียนทับ ใช้ตัวที่อยู่ขวาสุด)':''}`});}
+ st.push({h:tpH(T,P,0,0,{},{[m-1]:'cmp'})+shiftTblH(P,t,null,'ตาราง Shift'),m:`ตารางเสร็จ (ตัวสุดท้าย '${P[m-1]}' ไม่ถูกนับ ถ้าไม่ปรากฏในตำแหน่งก่อนหน้าจะได้ ${m}) → ② เริ่มค้นหา`});
+ let i=m-1,prev=0;
+ while(i<n){const off=i-m+1;st.push({h:tpH(T,P,off,prev,{},{})+shiftTblH(P,t,null,'ตาราง Shift'),m:`วาง Pattern ที่ตำแหน่ง ${off} แล้วเทียบจากขวาไปซ้าย`});prev=off;
+  let k=0;const hT={},hP={};
+  while(k<m&&P[m-1-k]===T[i-k]){hT[i-k]='done';hP[m-1-k]='done';k++;st.push({h:tpH(T,P,off,off,{...hT},{...hP})+shiftTblH(P,t,null,'ตาราง Shift'),m:`'${T[i-k+1]}' ตรงกัน ✓ (ตรงแล้ว ${k} ตัว)`});}
+  if(k===m){st.push({h:tpH(T,P,off,off,hT,hP)+shiftTblH(P,t,null,'ตาราง Shift'),m:`🎉 <b>พบ Pattern ที่ตำแหน่ง ${off}</b>`});return st;}
+  hT[i-k]='bad';hP[m-1-k]='bad';st.push({h:tpH(T,P,off,off,{...hT},{...hP})+shiftTblH(P,t,null,'ตาราง Shift'),m:`'${T[i-k]}' ≠ '${P[m-1-k]}' ✗ ไม่ตรง`});
+  const c=T[i],s=t[c]??m;const h2={...hT};if(k===0)h2[i]='bad';else h2[i]='cur';
+  st.push({h:tpH(T,P,off,off,h2,hP)+shiftTblH(P,t,c,'ตาราง Shift'),m:`ใช้ตัวอักษรใน text ที่ตรงกับตัวสุดท้ายของ pattern: T[${i}] = '${c}' → t('${c}') = <b>${s}</b> → เลื่อน ${s} ช่อง`});i+=s;}
+ st.push({h:tpH(T,P,Math.min(i-m+1,n),prev,{},{})+shiftTblH(P,t,null,'ตาราง Shift'),m:'Pattern เลยท้าย text แล้ว → <b>ไม่พบ</b>'});return st;}});
+
+function goodSuffix(P){const m=P.length,d2={};
+ for(let k=1;k<m;k++){const suf=P.slice(m-k),pc=P[m-k-1];let d=null;
+  for(let pos=m-k-1;pos>=0;pos--){if(P.slice(pos,pos+k)===suf&&(pos===0||P[pos-1]!==pc)){d=(m-k)-pos;break;}}
+  if(d===null){let l=0;for(let L=k-1;L>0;L--){if(P.slice(0,L)===P.slice(m-L)){l=L;break;}}d=m-l;}
+  d2[k]=d;}return d2;}
+function d2H(P,d2,hk){const m=P.length;return `<div class="mt"><div class="mtt">Good-suffix table d2</div><table class="m"><tr><th>k</th>${[...Array(m-1)].map((_,i)=>`<th>${i+1}</th>`).join('')}</tr><tr><th>suffix</th>${[...Array(m-1)].map((_,i)=>`<td>${P.slice(m-i-1)}</td>`).join('')}</tr><tr><th>d2</th>${[...Array(m-1)].map((_,i)=>`<td class="${hk===i+1?'pick':''}">${d2[i+1]}</td>`).join('')}</tr></table></div>`;}
+
+M.push({id:'bm',g:W7,name:'Boyer-Moore Algorithm',
+desc:`<b>ใช้ 2 กฎการเลื่อน</b> (k = จำนวนตัวที่ตรงแล้วจากขวา, c = ตัวใน text ที่ไม่ตรง)<br>
+• <b>Bad-symbol:</b> <span class="f">d1 = max{ t1(c) − k, 1 }</span> (t1 = ตารางเดียวกับ Horspool)<br>
+• <b>Good-suffix:</b> d2(k) = ระยะไปยังตำแหน่งขวาสุดที่ suffix ยาว k ปรากฏซ้ำ (ไม่ติดตัวเดิมข้างหน้า) ถ้าไม่มีก็ใช้ prefix ที่ตรงกับ suffix<br>
+• <b>ตัดสินใจ:</b> <span class="f">k = 0 → d = d1</span> &nbsp; <span class="f">k &gt; 0 → d = max{d1, d2}</span><br>
+<span class="tip">💡 BAOBAB: d2 = 2,5,5,5,5 · ABCBAB: d2 = 2,4,4,4,4</span>`,
+inputs:[['text','Text','BESS_KNEW_ABOUT_BAOBABS'],['pat','Pattern','BAOBAB']],
+build(v){const T=clean(v.text),P=clean(v.pat),m=P.length,n=T.length,st=[],t=shiftTbl(P),GS=goodSuffix(P);
+ const R=(off,prev,hT,hP,hc,hk)=>tpH(T,P,off,prev,hT,hP)+'<div class="flex">'+shiftTblH(P,t,hc,'Bad-symbol table t1')+d2H(P,GS,hk)+'</div>';
+ st.push({h:R(0,0,{},{},null,null),m:'① ตาราง t1 สร้างแบบเดียวกับ Horspool'});
+ for(let k=1;k<m;k++){st.push({h:R(0,0,{},Object.fromEntries([...Array(k)].map((_,q)=>[m-1-q,'pick'])),null,k),m:`d2(k=${k}): suffix ที่ตรงแล้วคือ "${P.slice(m-k)}" → เลื่อนได้ <b>${GS[k]}</b> ช่อง`});}
+ let i=m-1,prev=0;
+ while(i<n){const off=i-m+1;st.push({h:R(off,prev,{},{},null,null),m:`② วาง Pattern ที่ตำแหน่ง ${off} แล้วเทียบจากขวาไปซ้าย`});prev=off;let k=0;const hT={},hP={};
+  while(k<m&&P[m-1-k]===T[i-k]){hT[i-k]='done';hP[m-1-k]='done';k++;st.push({h:R(off,off,{...hT},{...hP},null,null),m:`'${T[i-k+1]}' ตรงกัน ✓ (k = ${k})`});}
+  if(k===m){st.push({h:R(off,off,hT,hP,null,null),m:`🎉 <b>พบ Pattern ที่ตำแหน่ง ${off}</b>`});return st;}
+  const c=T[i-k];hT[i-k]='bad';hP[m-1-k]='bad';const t1=t[c]??m,d1=Math.max(t1-k,1);let d,msg=`ไม่ตรงที่ c = '${c}' หลังจากตรงมาแล้ว k = ${k} ตัว<br>• Bad-symbol: d1 = max{t1('${c}') − k, 1} = max{${t1} − ${k}, 1} = <b>${d1}</b>`;
+  if(k>0){d=Math.max(d1,GS[k]);msg+=`<br>• Good-suffix: d2(${k}) = <b>${GS[k]}</b><br>→ เลื่อน d = max{${d1}, ${GS[k]}} = <b>${d}</b>`;}else{d=d1;msg+=`<br>→ k = 0 ใช้ d1 อย่างเดียว เลื่อน <b>${d}</b>`;}
+  st.push({h:R(off,off,hT,hP,c,k||null),m:msg});i+=d;}
+ st.push({h:R(Math.min(i-m+1,n),prev,{},{},null,null),m:'Pattern เลยท้าย text แล้ว → <b>ไม่พบ</b>'});return st;}});
+
+const hcalc=(K,m)=>{const a=[...K].filter(c=>/[A-Z]/.test(c)).map(c=>c.charCodeAt(0)-64),s=a.reduce((x,y)=>x+y,0);return{a,s,h:s%m};};
+const keysOf=s=>s.split(',').map(x=>x.trim().toUpperCase()).filter(x=>x);
+M.push({id:'hopen',g:W7,name:'Hashing: Open (Separate Chaining)',
+desc:`<b>Prestructuring:</b> hash function แปลงคีย์เป็นที่อยู่ <span class="f">h(K) = (ผลรวมลำดับตัวอักษร) mod m</span> (A=1 … Z=26)<br>
+<b>Open hashing:</b> คีย์ที่ชนกัน (collision) เก็บต่อกันใน linked list ของช่องนั้น<br>
+<b>Load factor</b> α = n/m · ค้นหาสำเร็จเฉลี่ย ≈ 1 + α/2 · ไม่สำเร็จ ≈ α`,
+inputs:[['keys','คีย์','A, FOOL, AND, HIS, MONEY, ARE, SOON, PARTED'],['m','ขนาดตาราง m','13'],['q','คีย์ที่จะค้นหา','KID']],
+build(v){const m=+v.m,keys=keysOf(v.keys),T=[...Array(m)].map(()=>[]),st=[];
+ const H=(slot,q,c)=>`<div class="hash">${T.map((ch,s)=>`<div class="bucket"><div class="cell slot ${s===slot?'pick':''}">${s}</div>${ch.map((k,i)=>`<div class="cell key ${s===slot&&i===q?c:''}">${k}</div>`).join('')}</div>`).join('')}</div>`;
+ st.push({h:H(-1),m:`ตารางมี ${m} ช่อง · h(K) = (ผลรวมลำดับตัวอักษร) mod ${m}`});
+ for(const K of keys){const{a,s,h}=hcalc(K,m);st.push({h:H(h),m:`h(${K}) = (${a.join(' + ')}) mod ${m} = ${s} mod ${m} = <b>${h}</b>`});
+  const col=T[h].length>0;T[h].push(K);st.push({h:H(h,T[h].length-1,col?'bad':'done'),m:col?`<b>Collision!</b> ช่อง ${h} มี ${T[h].slice(0,-1).join(', ')} อยู่แล้ว → ต่อท้าย linked list`:`ใส่ ${K} ที่ช่อง ${h}`});}
+ const q=(v.q||'').trim().toUpperCase();
+ if(q){const{a,s,h}=hcalc(q,m);st.push({h:H(h),m:`ค้นหา ${q}: h = (${a.join(' + ')}) mod ${m} = ${s} mod ${m} = ${h} → ไปที่ช่อง ${h}`});let f=false;
+  for(let i=0;i<T[h].length;i++){const ok=T[h][i]===q;st.push({h:H(h,i,ok?'done':'cmp'),m:`เทียบ ${q} กับ ${T[h][i]} → ${ok?'<b>เจอแล้ว ✓</b>':'ไม่ใช่'}`});if(ok){f=true;break;}}
+  if(!f)st.push({h:H(h),m:`สุดลิสต์แล้ว → <b>ไม่พบ ${q}</b>`});}
+ st.push({h:H(-1),m:`เสร็จ · α = n/m = ${keys.length}/${m} ≈ ${f2(keys.length/m)}`});return st;}});
+
+M.push({id:'hclosed',g:W7,name:'Hashing: Closed (Linear Probing)',
+desc:`<b>Closed hashing (open addressing):</b> เก็บทุกคีย์ในตารางเอง (α ≤ 1) ถ้าช่องถูกใช้แล้ว → ลองช่องถัดไป <span class="f">(h+1) mod m</span> วนกลับไปช่อง 0 ได้<br>
+<b>ข้อเสีย:</b> เกิด clustering · การลบต้องใช้ <i>lazy deletion</i> (ทำเครื่องหมายแทนการลบจริง)<br>
+ค้นหาสำเร็จ ≈ ½(1 + 1/(1−α)) · ไม่สำเร็จ ≈ ½(1 + 1/(1−α)²)`,
+inputs:[['keys','คีย์','A, FOOL, AND, HIS, MONEY, ARE, SOON, PARTED'],['m','ขนาดตาราง m','13'],['q','คีย์ที่จะค้นหา','KID']],
+build(v){const m=+v.m,keys=keysOf(v.keys);if(keys.length>m)throw Error('คีย์มากกว่าขนาดตาราง');const T=Array(m).fill(null),st=[];
+ const H=hl=>`<div class="hash">${T.map((k,s)=>`<div class="bucket"><div class="cell slot">${s}</div><div class="cell key ${hl[s]||''}">${k??''}</div></div>`).join('')}</div>`;
+ st.push({h:H({}),m:`ตารางว่าง ${m} ช่อง`});
+ for(const K of keys){const{a,s,h}=hcalc(K,m);st.push({h:H({[h]:'cmp'}),m:`h(${K}) = (${a.join(' + ')}) mod ${m} = ${s} mod ${m} = <b>${h}</b>`});let p=h;
+  while(T[p]!==null){st.push({h:H({[p]:'bad'}),m:`ช่อง ${p} ไม่ว่าง (มี ${T[p]}) → <b>collision</b> ลองช่อง (${p}+1) mod ${m} = ${(p+1)%m}`});p=(p+1)%m;}
+  T[p]=K;st.push({h:H({[p]:'done'}),m:`ใส่ ${K} ที่ช่อง ${p}`});}
+ const q=(v.q||'').trim().toUpperCase();
+ if(q){const{a,s,h}=hcalc(q,m);let p=h,f=false;st.push({h:H({[p]:'cmp'}),m:`ค้นหา ${q}: h = (${a.join(' + ')}) mod ${m} = ${s} mod ${m} = ${h}`});
+  for(let c=0;c<m;c++){if(T[p]===null){st.push({h:H({[p]:'bad'}),m:`ช่อง ${p} ว่าง → <b>ไม่พบ ${q}</b>`});break;}
+   if(T[p]===q){st.push({h:H({[p]:'done'}),m:`ช่อง ${p} = ${q} → <b>เจอแล้ว ✓</b>`});f=true;break;}
+   st.push({h:H({[p]:'cmp'}),m:`ช่อง ${p} = ${T[p]} ≠ ${q} → ไปช่องถัดไป`});p=(p+1)%m;}}
+ st.push({h:H({}),m:'เสร็จ — สังเกตว่าคีย์ที่ชนกันจะอยู่ติดกันเป็นกลุ่ม (cluster)'});return st;}});
+
+M.push({id:'btree',g:W7,name:'B-tree (แทรก 65)',
+desc:`<b>B-tree order m:</b> ข้อมูลทั้งหมดอยู่ที่ใบ ใบทุกใบอยู่ระดับเดียวกัน · รากมีลูก 2..m · โหนดภายในมีลูก ⌈m/2⌉..m<br>
+<b>กฎ:</b> คีย์ทางซ้ายน้อยกว่า คีย์ทางขวามากกว่าหรือเท่ากับคีย์ในโหนดพ่อ · <b>ใช้ทำ index ในฐานข้อมูล</b> (ลดการอ่านดิสก์)<br>
+<b>แทรก:</b> หาใบ → ใส่ตามลำดับ → ถ้าเต็มเกินให้ <b>split</b> แล้วส่งคีย์ขึ้นไปที่พ่อ (อาจ split ต่อไปถึงราก) · ค้นหา/แทรก Θ(log n)`,
+build(){const L=a=>({k:a});
+ const base=()=>({k:[20,51],c:[{k:[11,15],c:[L([4,7,10]),L([11,14]),L([15,16,19])]},{k:[25,34,40],c:[L([20,24]),L([25,28]),L([34,38]),L([40,43,46])]},{k:[60],c:[L([51,55]),L([60,68,80])]}]});
+ const conv=n=>({box:1,cls:n.cls,l:n.k.map(x=>`<span class="${n.hk===x?'hk':''}">${x}</span>`).join(''),ch:n.c?n.c.map(conv):null});
+ const H=t=>`<div class="treewrap">${treeH(conv(t))}</div>`;const st=[];let t=base();
+ st.push({h:H(t),m:'B-tree order 4 (ตามสไลด์) → ต้องการแทรก <b>65</b>'});
+ t=base();t.cls='cur';st.push({h:H(t),m:'ราก [20 | 51]: 65 ≥ 51 → ลงไปลูกขวาสุด'});
+ t=base();t.c[2].cls='cur';st.push({h:H(t),m:'โหนด [60]: 65 ≥ 60 → ลงไปลูกขวา'});
+ t=base();t.c[2].c[1].cls='cmp';st.push({h:H(t),m:'ถึงใบ [60, 68, 80] → แทรก 65 ให้เรียงตามลำดับ'});
+ t=base();t.c[2].c[1]={k:[60,65,68,80],cls:'bad',hk:65};st.push({h:H(t),m:'ใบมี 4 คีย์ → <b>overflow</b> (order 4 เก็บได้ไม่เกิน 3 คีย์) → ต้อง split'});
+ t=base();t.c[2]={k:[60,68],hk:68,cls:'pick',c:[L([51,55]),{k:[60,65],cls:'done',hk:65},{k:[68,80],cls:'done'}]};
+ st.push({h:H(t),m:'Split ใบเป็น [60, 65] และ [68, 80] แล้วส่ง <b>68</b> (คีย์แรกของใบขวา) ขึ้นไปที่พ่อ → พ่อเป็น [60 | 68] ไม่ overflow จึงจบ'});
+ st.push({h:H(t),m:'เสร็จ! ถ้าพ่อ overflow ด้วยจะ split ต่อขึ้นไปเรื่อย ๆ ถ้ารากแตก ต้นไม้จะสูงขึ้น 1 ระดับ'});return st;}});
+
+/* ================= WEEK 8 ================= */
+M.push({id:'fib',g:W8,name:'Fibonacci (แนวคิด DP)',
+desc:`<b>Dynamic Programming:</b> แก้ปัญหาย่อยที่ <b>ซ้อนทับกัน</b> แค่ครั้งเดียว แล้วเก็บผลไว้ในตาราง<br>
+<b>Recurrence:</b> <span class="f">F(n) = F(n−1) + F(n−2)</span>, <span class="f">F(0) = 0, F(1) = 1</span><br>
+เรียก recursion ตรง ๆ จะเป็น exponential แต่ถ้าใช้ DP แบบ bottom-up จะเป็น Θ(n)`,
+inputs:[['n','n','8']],
+build(v){const n=Math.max(1,Math.min(+v.n,20)),F=Array(n+1).fill('');F[0]=0;F[1]=1;const st=[];
+ st.push({h:rowH('F',F,{0:'done',1:'done'}),m:'ค่าเริ่มต้น F(0) = 0, F(1) = 1'});
+ for(let i=2;i<=n;i++){F[i]=F[i-1]+F[i-2];st.push({h:rowH('F',F,{[i-1]:'cmp',[i-2]:'cmp',[i]:'pick'}),m:`F(${i}) = F(${i-1}) + F(${i-2}) = ${F[i-1]} + ${F[i-2]} = <b>${F[i]}</b> (ดึงค่าจากตาราง ไม่คำนวณซ้ำ)`});}
+ const fb=[0,1];for(let i=2;i<=n+1;i++)fb[i]=fb[i-1]+fb[i-2];
+ st.push({h:rowH('F',F,cls(n+1,'done')),m:`F(${n}) = <b>${F[n]}</b> · DP บวกแค่ ${n-1} ครั้ง แต่ recursion ตรง ๆ เรียกฟังก์ชันถึง ${2*fb[n+1]-1} ครั้ง!`});return st;}});
+
+M.push({id:'coinrow',g:W8,name:'Coin-row Problem',
+desc:`<b>ปัญหา:</b> เหรียญเรียงเป็นแถว หยิบได้โดย<b>ห้ามหยิบเหรียญที่ติดกัน</b> ให้ได้มูลค่ารวมมากที่สุด<br>
+<b>Recurrence:</b> <span class="f">F(n) = max{ c<sub>n</sub> + F(n−2), F(n−1) }</span>, <span class="f">F(0) = 0, F(1) = c<sub>1</sub></span><br>
+เวลาและพื้นที่ Θ(n) · ย้อนกลับ (backtrace) เพื่อดูว่าหยิบเหรียญไหน`,
+inputs:[['coins','เหรียญ','5, 1, 2, 10, 6, 2']],
+build(v){const c=parseList(v.coins),n=c.length,F=Array(n+1).fill('');F[0]=0;F[1]=c[0];const st=[];
+ const H=(hc,hf)=>rowH('เหรียญ c',['',...c],hc)+rowH('F',F,hf);
+ st.push({h:H({},{0:'done',1:'done'}),m:`ค่าเริ่มต้น F(0) = 0, F(1) = c₁ = ${c[0]}`});
+ for(let i=2;i<=n;i++){const a=c[i-1]+F[i-2],b=F[i-1];F[i]=Math.max(a,b);
+  st.push({h:H({[i]:'cur'},{[i-2]:'cmp',[i-1]:'cmp',[i]:'pick'}),m:`F(${i}) = max{ c${i} + F(${i-2}), F(${i-1}) } = max{ ${c[i-1]} + ${F[i-2]}, ${b} } = max{${a}, ${b}} = <b>${F[i]}</b>`});}
+ let i=n;const pk={},used=[];
+ while(i>=1){const a=c[i-1]+(i>=2?F[i-2]:0);
+  if(a>=F[i-1]){pk[i]='done';used.unshift(c[i-1]);st.push({h:H({...pk},{[i]:'pick'}),m:`Backtrace: F(${i}) ได้มาจาก c${i} + F(${Math.max(i-2,0)}) → <b>หยิบเหรียญที่ ${i} (${c[i-1]})</b> แล้วข้ามไป i = ${i-2}`});i-=2;}
+  else{st.push({h:H({...pk},{[i]:'cmp'}),m:`Backtrace: F(${i}) = F(${i-1}) → ไม่หยิบเหรียญที่ ${i}`});i--;}}
+ st.push({h:H(pk,{[n]:'done'}),m:`คำตอบ: ${used.join(' + ')} = <b>${F[n]}</b>`});return st;}});
+
+M.push({id:'change',g:W8,name:'Change-making Problem (DP)',
+desc:`<b>ปัญหา:</b> ทอนเงิน n โดยใช้จำนวนเหรียญน้อยที่สุด (เหรียญ d₁ &lt; d₂ &lt; … &lt; d<sub>m</sub>)<br>
+<b>Recurrence:</b> <span class="f">F(n) = min<sub>j: n ≥ d<sub>j</sub></sub>{ F(n − d<sub>j</sub>) } + 1</span>, <span class="f">F(0) = 0</span><br>
+เวลา Θ(nm) · <span class="tip">💡 ลองเหรียญ 1, 2, 5, 10 กับ n = 20 ตามสไลด์ หรือ 1, 3, 4 กับ n = 6 (กรณีที่ greedy ได้คำตอบผิด)</span>`,
+inputs:[['coins','เหรียญ','1, 3, 4'],['n','จำนวนเงิน n','6']],
+build(v){const D=parseList(v.coins).sort((a,b)=>a-b),N=+v.n,F=Array(N+1).fill(''),ch=[];F[0]=0;const st=[];
+ const H=h=>`<div class="row"><span class="lab">เหรียญ</span>${D.map(d=>`<div class="coin">${d}</div>`).join('')}</div>`+rowH('F',F.map(inf),h);
+ st.push({h:H({0:'done'}),m:'F(0) = 0 (ทอน 0 บาท ไม่ต้องใช้เหรียญ)'});
+ for(let i=1;i<=N;i++){let b=Infinity,bj=-1;const o=[],h={};
+  for(const d of D)if(d<=i){o.push(`F(${i}−${d}) = ${inf(F[i-d])}`);h[i-d]='cmp';if(F[i-d]<b){b=F[i-d];bj=d;}}
+  F[i]=b+1;ch[i]=bj;h[i]='pick';st.push({h:H(h),m:`F(${i}) = min{ ${o.join(', ')} } + 1 = ${inf(b)} + 1 = <b>${inf(F[i])}</b>${bj>0?` (ใช้เหรียญ ${bj})`:''}`});}
+ if(F[N]===Infinity){st.push({h:H({}),m:'ทอนไม่ได้'});return st;}
+ let i=N;const used=[],h={};
+ while(i>0){h[i]='done';used.push(ch[i]);st.push({h:H({...h}),m:`Backtrace: ที่ ${i} ใช้เหรียญ ${ch[i]} → ไป ${i-ch[i]}`});i-=ch[i];}
+ h[0]='done';st.push({h:H(h),m:`คำตอบ: ใช้ <b>${F[N]}</b> เหรียญ = ${used.join(' + ')}`});return st;}});
+
+M.push({id:'coll',g:W8,name:'Coin-collection Problem',
+desc:`<b>ปัญหา:</b> หุ่นยนต์เริ่มที่มุมซ้ายบนของตาราง n×m เดินได้แค่ <b>ขวา</b> หรือ <b>ลง</b> ไปที่มุมขวาล่าง ให้เก็บเหรียญได้มากที่สุด<br>
+<b>Recurrence:</b> <span class="f">F(i, j) = max{ F(i−1, j), F(i, j−1) } + c<sub>ij</sub></span> (c<sub>ij</sub> = 1 ถ้ามีเหรียญ) · F(0, j) = F(i, 0) = 0<br>
+เวลา Θ(nm) · <i>ตัวอย่างกระดานในโปรแกรมนี้นำมาจากหนังสือ Levitin</i>`,
+build(){const B=[[0,0,0,0,1,0],[0,1,0,1,0,0],[0,0,0,1,0,1],[0,0,1,0,0,1],[1,0,0,0,1,0]],n=5,m=6,F=B.map(r=>r.map(()=>null)),st=[];
+ const H=hl=>`<table class="m board"><tr><th></th>${[...Array(m)].map((_,j)=>`<th>${j+1}</th>`).join('')}</tr>${B.map((r,i)=>`<tr><th>${i+1}</th>${r.map((c,j)=>`<td class="${hl[i+','+j]||''}">${c?'<span class="cn">●</span>':''}<span class="fv">${F[i][j]??''}</span></td>`).join('')}</tr>`).join('')}</table>`;
+ st.push({h:H({}),m:'● = ช่องที่มีเหรียญ · เติมตาราง F ทีละแถว จากซ้ายไปขวา'});
+ for(let i=0;i<n;i++)for(let j=0;j<m;j++){const up=i>0?F[i-1][j]:0,lf=j>0?F[i][j-1]:0;F[i][j]=Math.max(up,lf)+B[i][j];const h={[i+','+j]:'pick'};if(i>0)h[(i-1)+','+j]='cmp';if(j>0)h[i+','+(j-1)]='cmp';
+  st.push({h:H(h),m:`F(${i+1},${j+1}) = max{ บน F(${i},${j+1}) = ${up}, ซ้าย F(${i+1},${j}) = ${lf} } + ${B[i][j]} = <b>${F[i][j]}</b>`});}
+ let i=n-1,j=m-1;const p={[i+','+j]:'done'};st.push({h:H({...p}),m:`F(${n},${m}) = <b>${F[i][j]}</b> เหรียญ → Backtrace หาเส้นทาง`});
+ while(i>0||j>0){if(j===0||(i>0&&F[i-1][j]>F[i][j-1]))i--;else j--;p[i+','+j]='done';st.push({h:H({...p}),m:`ย้อนกลับไปช่อง (${i+1},${j+1}) ที่มีค่ามากกว่า`});}
+ st.push({h:H(p),m:`เส้นทางที่ดีที่สุดเก็บได้ <b>${F[n-1][m-1]}</b> เหรียญ`});return st;}});
+
+const parseItems=s=>s.split(',').map(x=>x.trim().split(':').map(Number));
+M.push({id:'knap',g:W8,name:'Knapsack Problem (Bottom-up)',
+desc:`<b>ปัญหา:</b> มีของ n ชิ้น (น้ำหนัก w<sub>i</sub>, มูลค่า v<sub>i</sub>) กระเป๋าจุ W ให้ได้มูลค่ารวมมากที่สุด<br>
+<b>Recurrence:</b> ถ้า <span class="f">j − w<sub>i</sub> &lt; 0 → F(i, j) = F(i−1, j)</span> ไม่งั้น <span class="f">F(i, j) = max{ F(i−1, j), v<sub>i</sub> + F(i−1, j−w<sub>i</sub>) }</span><br>
+<b>ค่าเริ่มต้น:</b> F(0, j) = F(i, 0) = 0 · เวลาและพื้นที่ Θ(nW) · ใส่ข้อมูลในรูปแบบ <span class="f">น้ำหนัก:มูลค่า</span>`,
+inputs:[['items','ของ (w:v)','2:12, 1:10, 3:20, 2:15'],['W','ความจุ W','5']],
+build(v){const I=parseItems(v.items),n=I.length,W=+v.W,F=[...Array(n+1)].map((_,i)=>[...Array(W+1)].map((_,j)=>i===0||j===0?0:null)),st=[];
+ const rl=['0',...I.map(([w,x],i)=>`${i+1} (w=${w}, v=${x})`)],cl=[...Array(W+1).keys()].map(j=>'j='+j);
+ const snap=(h,m)=>st.push({h:matH(F,rl,cl,h,'i \\ j'),m});
+ snap({},`แถว 0 และคอลัมน์ 0 = 0 · W = ${W}`);
+ for(let i=1;i<=n;i++){const[w,val]=I[i-1];for(let j=1;j<=W;j++){const h={[i+','+j]:'pick',[(i-1)+','+j]:'cmp'};let m;
+  if(j<w){F[i][j]=F[i-1][j];m=`F(${i},${j}): w${i} = ${w} &gt; j = ${j} ใส่ไม่ได้ → F(${i-1},${j}) = <b>${F[i][j]}</b>`;}
+  else{const a=F[i-1][j],b=val+F[i-1][j-w];h[(i-1)+','+(j-w)]='cmp';F[i][j]=Math.max(a,b);m=`F(${i},${j}) = max{ F(${i-1},${j}), v${i} + F(${i-1},${j-w}) } = max{ ${a}, ${val} + ${F[i-1][j-w]} } = <b>${F[i][j]}</b> ${b>a?'(ใส่ชิ้นที่ '+i+')':'(ไม่ใส่)'}`;}
+  snap(h,m);}}
+ let j=W;const sel=[],h={};
+ for(let i=n;i>=1;i--){h[i+','+j]='done';if(F[i][j]!==F[i-1][j]){sel.unshift(i);snap({...h},`F(${i},${j}) ≠ F(${i-1},${j}) → <b>เลือกชิ้นที่ ${i}</b> แล้ว j = ${j} − ${I[i-1][0]} = ${j-I[i-1][0]}`);j-=I[i-1][0];}
+  else snap({...h},`F(${i},${j}) = F(${i-1},${j}) → ไม่เลือกชิ้นที่ ${i}`);}
+ snap(h,`คำตอบ: ชิ้นที่ {${sel.join(', ')}} มูลค่ารวม = <b>${F[n][W]}</b>`);return st;}});
+
+M.push({id:'mf',g:W8,name:'Knapsack: Memory Function',
+desc:`<b>Memory function</b> = รวมข้อดีของ top-down กับ bottom-up: เรียก recursion จาก F(n, W) แต่<b>เก็บผลไว้ในตาราง</b> (ค่าเริ่ม = −1/ยังไม่คำนวณ)<br>
+• ถ้าช่องยังไม่เคยคำนวณ → คำนวณแล้วบันทึก · ถ้าเคยแล้ว → ดึงค่ามาใช้ทันที<br>
+• ข้อดี: <b>คำนวณเฉพาะช่องที่จำเป็น</b> (ช่อง – คือช่องที่ไม่ต้องคำนวณเลย)`,
+inputs:[['items','ของ (w:v)','2:12, 1:10, 3:20, 2:15'],['W','ความจุ W','5']],
+build(v){const I=parseItems(v.items),n=I.length,W=+v.W,F=[...Array(n+1)].map((_,i)=>[...Array(W+1)].map((_,j)=>i===0||j===0?0:-1)),st=[];
+ const rl=['0',...I.map(([w,x],i)=>`${i+1} (w=${w}, v=${x})`)],cl=[...Array(W+1).keys()].map(j=>'j='+j);
+ const snap=(h,m)=>st.push({h:matH(F.map(r=>r.map(x=>x<0?'–':x)),rl,cl,h,'i \\ j'),m});
+ function MF(i,j){if(i===0||j===0)return 0;const key=i+','+j;
+  if(F[i][j]>=0){snap({[key]:'done'},`MF(${i},${j}) เคยคำนวณแล้ว = ${F[i][j]} → <b>ดึงค่าจากตาราง</b>`);return F[i][j];}
+  const[w,val]=I[i-1];snap({[key]:'cur'},`เรียก MF(${i},${j}) ครั้งแรก → ${j<w?`w${i} = ${w} &gt; ${j} ต้องเรียก MF(${i-1},${j})`:`ต้องเรียก MF(${i-1},${j}) และ MF(${i-1},${j-w})`}`);
+  let r;if(j<w)r=MF(i-1,j);else{const a=MF(i-1,j),b=val+MF(i-1,j-w);r=Math.max(a,b);}
+  F[i][j]=r;snap({[key]:'pick'},`ได้ F(${i},${j}) = <b>${r}</b> → บันทึกลงตาราง`);return r;}
+ snap({},'เริ่มเรียก MF(n, W) แบบ top-down');MF(n,W);
+ let c=0;for(let i=1;i<=n;i++)for(let j=1;j<=W;j++)if(F[i][j]>=0)c++;
+ snap({[n+','+W]:'done'},`คำตอบ F(${n},${W}) = <b>${F[n][W]}</b> · คำนวณจริงแค่ ${c} จาก ${n*W} ช่อง`);return st;}});
+
+M.push({id:'obst',g:W8,name:'Optimal Binary Search Tree',
+desc:`<b>เป้าหมาย:</b> สร้าง BST ที่ค่าเฉลี่ยจำนวนครั้งการเปรียบเทียบตอนค้นหาน้อยที่สุด (รู้ความน่าจะเป็น p<sub>i</sub> ของแต่ละคีย์)<br>
+<b>Recurrence:</b> <span class="f">C(i, j) = min<sub>i ≤ k ≤ j</sub>{ C(i, k−1) + C(k+1, j) } + Σ<sub>s=i..j</sub> p<sub>s</sub></span><br>
+<b>ค่าเริ่มต้น:</b> C(i, i−1) = 0, C(i, i) = p<sub>i</sub> · เติมตามเส้นทแยง · ตาราง R เก็บ k ที่ดีที่สุด (root) · เวลา Θ(n³)`,
+inputs:[['keys','คีย์','A, B, C, D'],['p','ความน่าจะเป็น','0.1, 0.2, 0.4, 0.3']],
+build(v){const K=v.keys.split(',').map(s=>s.trim()),p=parseList(v.p),n=K.length;
+ const C=[...Array(n+2)].map(()=>Array(n+1).fill(null)),R=[...Array(n+2)].map(()=>Array(n+1).fill(null));
+ for(let i=1;i<=n;i++){C[i][i-1]=0;C[i][i]=p[i-1];R[i][i]=i;}C[n+1][n]=0;const st=[];
+ const top=`<div class="row"><span class="lab">key</span>${K.map(k=>`<div class="cell">${k}</div>`).join('')}</div><div class="row"><span class="lab">p</span>${p.map(x=>`<div class="cell">${x}</div>`).join('')}</div>`;
+ const H=(hc,hr)=>{const CM=[],RM=[];for(let i=1;i<=n+1;i++)CM.push(C[i].slice(0));for(let i=1;i<=n;i++)RM.push(R[i].slice(1).map(r=>r?`${r} (${K[r-1]})`:null));
+  return top+`<div class="flex" style="margin-top:10px">${matH(CM,[...Array(n+1)].map((_,i)=>i+1),[...Array(n+1).keys()],hc,'i \\ j','ตาราง C')}${matH(RM,[...Array(n)].map((_,i)=>i+1),[...Array(n)].map((_,j)=>j+1),hr,'i \\ j','ตาราง R (root)')}</div>`;};
+ const hd={};for(let i=1;i<=n;i++)hd[(i-1)+','+i]='done';
+ st.push({h:H(hd,{}),m:'เริ่มต้น: C(i, i−1) = 0 และ C(i, i) = p<sub>i</sub> (ต้นไม้ที่มีคีย์เดียว), R(i, i) = i'});
+ for(let d=1;d<n;d++)for(let i=1;i<=n-d;i++){const j=i+d;let mn=Infinity,km=0;const L=[];
+  for(let k=i;k<=j;k++){const a=C[i][k-1],b=C[k+1][j],s=f2(a+b);L.push(`k=${k} (${K[k-1]}): C(${i},${k-1}) + C(${k+1},${j}) = ${a} + ${b} = ${s}`);if(s<mn){mn=s;km=k;}}
+  let sum=0;for(let s=i;s<=j;s++)sum+=p[s-1];sum=f2(sum);C[i][j]=f2(mn+sum);R[i][j]=km;
+  st.push({h:H({[(i-1)+','+j]:'pick',[(i-1)+','+(km-1)]:'cmp',[km+','+j]:'cmp'},{[(i-1)+','+(j-1)]:'pick'}),m:`C(${i},${j}) = min ของ:<br>${L.join('<br>')}<br>→ min = ${mn} (k = ${km}) + Σp = ${mn} + ${sum} = <b>${C[i][j]}</b>, R(${i},${j}) = ${km} (${K[km-1]})`});}
+ const mk=(i,j)=>{if(i>j)return null;const r=R[i][j];return{l:K[r-1],cls:'done',ch:[mk(i,r-1),mk(r+1,j)]};};
+ st.push({h:H({[0+','+n]:'done'},{[0+','+(n-1)]:'done'})+`<div class="mtt">Optimal BST (สร้างจากตาราง R)</div><div class="treewrap">${treeH(mk(1,n))}</div>`,m:`root = R(1,${n}) = ${K[R[1][n]-1]} แล้วแบ่งซ้าย/ขวาต่อไปเรื่อย ๆ · ค่าเฉลี่ยการเปรียบเทียบ = C(1,${n}) = <b>${C[1][n]}</b>`});return st;}});
+
+M.push({id:'warshall',g:W8,name:"Warshall's Algorithm",
+desc:`<b>หา Transitive closure</b> (โหนดไหนเดินไปถึงโหนดไหนได้บ้าง) จาก adjacency matrix<br>
+<b>สูตร:</b> <span class="f">R<sup>(k)</sup>[i,j] = R<sup>(k−1)</sup>[i,j] OR ( R<sup>(k−1)</sup>[i,k] AND R<sup>(k−1)</sup>[k,j] )</span><br>
+<b>ทริคคิดเร็ว:</b> ในรอบที่ k ให้ดูแถว k กับคอลัมน์ k ถ้าแถว i ในคอลัมน์ k เป็น 1 → คัดลอก 1 ของแถว k ไปใส่แถว i · เวลา Θ(n³)`,
+inputs:[['m','Adjacency matrix (แถวคั่นด้วย ;)','0 1 0 0; 0 0 0 1; 0 0 0 0; 1 0 1 0']],
+build(v){let R=parseMat(v.m);const n=R.length,N=[...'abcdefgh'].slice(0,n),st=[];
+ st.push({h:matH(R,N,N,{},'','R(0) = adjacency matrix'),m:'R(0) คือ adjacency matrix: R[i][j] = 1 ถ้ามีขอบ i → j โดยตรง'});
+ for(let k=0;k<n;k++){const h={};for(let x=0;x<n;x++){h[k+','+x]='cmp';h[x+','+k]='cmp';}
+  st.push({h:matH(R,N,N,h,'',`R(${k})`),m:`รอบ k = ${k+1} (ยอมให้ผ่านโหนด <b>${N[k]}</b>): ดูแถว ${N[k]} และคอลัมน์ ${N[k]}`});
+  const NR=R.map(r=>[...r]),nh={},c=[];
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(!R[i][j]&&R[i][k]&&R[k][j]){NR[i][j]=1;nh[i+','+j]='pick';c.push(`${N[i]}→${N[j]} (${N[i]}→${N[k]}→${N[j]})`);}
+  st.push({h:`<div class="flex">${matH(R,N,N,h,'',`R(${k})`)}${matH(NR,N,N,nh,'',`R(${k+1})`)}</div>`,m:c.length?`ได้ 1 ใหม่: ${c.join(', ')}`:'รอบนี้ไม่มี 1 ใหม่'});R=NR;}
+ st.push({h:matH(R,N,N,{},'',`R(${n}) = Transitive closure`),m:`เสร็จ! R(${n}) คือ transitive closure`});return st;}});
+
+M.push({id:'floyd',g:W8,name:"Floyd's Algorithm",
+desc:`<b>หา All-pairs shortest paths</b> (ระยะสั้นที่สุดระหว่างโหนดทุกคู่) จาก weight matrix<br>
+<b>Recurrence:</b> <span class="f">d<sub>ij</sub><sup>(k)</sup> = min{ d<sub>ij</sub><sup>(k−1)</sup>, d<sub>ik</sub><sup>(k−1)</sup> + d<sub>kj</sub><sup>(k−1)</sup> }</span>, <span class="f">d<sub>ij</sub><sup>(0)</sup> = w<sub>ij</sub></span><br>
+หลักการเหมือน Warshall แต่ใช้ min กับ + แทน OR กับ AND · เวลา Θ(n³) · ใช้กับน้ำหนักติดลบได้ ถ้าไม่มี negative cycle`,
+inputs:[['m','Weight matrix (ใช้ ∞ หรือ inf)','0 ∞ 3 ∞; 2 0 ∞ ∞; ∞ 7 0 1; 6 ∞ ∞ 0']],
+build(v){let D=parseMat(v.m);const n=D.length,N=[...'abcdefgh'].slice(0,n),st=[];
+ st.push({h:matH(D,N,N,{},'','D(0) = W'),m:'D(0) = weight matrix (∞ = ไม่มีขอบตรง)'});
+ for(let k=0;k<n;k++){const h={};for(let x=0;x<n;x++){h[k+','+x]='cmp';h[x+','+k]='cmp';}
+  st.push({h:matH(D,N,N,h,'',`D(${k})`),m:`รอบ k = ${k+1} (ยอมให้ผ่าน <b>${N[k]}</b>): ตรวจทุกคู่ว่า d[i][${N[k]}] + d[${N[k]}][j] &lt; d[i][j] หรือไม่`});
+  const ND=D.map(r=>[...r]),nh={},c=[];
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){const s=D[i][k]+D[k][j];if(s<D[i][j]){ND[i][j]=s;nh[i+','+j]='pick';c.push(`d[${N[i]}][${N[j]}]: ${inf(D[i][j])} → ${D[i][k]} + ${D[k][j]} = <b>${s}</b>`);}}
+  st.push({h:`<div class="flex">${matH(D,N,N,h,'',`D(${k})`)}${matH(ND,N,N,nh,'',`D(${k+1})`)}</div>`,m:c.length?c.join('<br>'):'รอบนี้ไม่มีค่าที่เปลี่ยน'});D=ND;}
+ st.push({h:matH(D,N,N,{},'',`D(${n}) = ระยะทางสั้นที่สุด`),m:'เสร็จ! D(n) คือระยะทางสั้นที่สุดของทุกคู่'});return st;}});
+
+/* ================= WEEK 9 ================= */
+M.push({id:'greedy',g:W9,name:'Greedy: การทอนเงิน',
+desc:`<b>Greedy technique:</b> ทุกขั้นเลือกทางที่ดีที่สุด <i>ณ ขณะนั้น</i> โดยต้องเป็น <b>feasible</b> (ทำได้จริง), <b>locally optimal</b> (ดีที่สุดในขั้นนั้น) และ <b>irrevocable</b> (เลือกแล้วย้อนไม่ได้)<br>
+<b>ทอนเงิน:</b> เลือกเหรียญที่ใหญ่ที่สุดที่ยังไม่เกินยอดคงเหลือ · <span class="tip">💡 greedy ไม่ได้คำตอบที่ดีที่สุดเสมอ ขึ้นกับชุดเหรียญ</span>`,
+inputs:[['coins','เหรียญ','1, 2, 5, 10'],['n','จำนวนเงิน','28']],
+build(v){const D=parseList(v.coins).sort((a,b)=>b-a);let r=+v.n;const used=[],st=[];
+ const H=hi=>`<div class="row"><span class="lab">เหรียญ</span>${D.map((d,i)=>`<div class="coin ${i===hi?'pick':''}">${d}</div>`).join('')}</div><div class="row"><span class="lab">ที่ใช้</span>${used.map(d=>`<div class="coin done">${d}</div>`).join('')||'—'}</div><div class="big">ยอดที่ยังต้องทอน: <b>${r}</b></div>`;
+ st.push({h:H(-1),m:`ต้องทอน ${v.n} — เลือกเหรียญใหญ่สุดที่ ≤ ยอดคงเหลือเสมอ`});
+ for(let i=0;i<D.length;i++){while(D[i]<=r){r-=D[i];used.push(D[i]);st.push({h:H(i),m:`เลือก <b>${D[i]}</b> (ใหญ่สุดที่ ≤ ${r+D[i]}) → เหลือ ${r}`});}
+  if(r>0&&i<D.length-1)st.push({h:H(i+1),m:`${D[i]} &gt; ${r} แล้ว → ลองเหรียญถัดไป ${D[i+1]}`});}
+ st.push({h:H(-1),m:r===0?`เสร็จ! ใช้ <b>${used.length}</b> เหรียญ: ${used.join(' + ')}<br>⚠️ เช่น เหรียญ 1, 3, 4 ทอน 6: greedy ได้ 4+1+1 (3 เหรียญ) แต่ DP ได้ 3+3 (2 เหรียญ)`:`ทอนไม่ครบ ยังเหลือ ${r}`});return st;}});
+
+M.push({id:'prim',g:W9,name:"Prim's Algorithm (MST)",
+desc:`<b>Minimum Spanning Tree:</b> sub-graph ที่ไม่มีวงจร (acyclic) เชื่อมทุกโหนด และน้ำหนักรวมน้อยที่สุด<br>
+<b>Prim:</b> เริ่มจาก 1 โหนด แล้วขยาย tree ทีละโหนด โดยเลือก <b>fringe vertex</b> ที่ต่อกับ tree ด้วยขอบที่เบาที่สุด · label = (โหนดใน tree ที่ใกล้สุด, น้ำหนัก)<br>
+ทำ n−1 รอบ · <span class="f">O(|E| log |V|)</span> เมื่อใช้ min-heap`,
+inputs:[['src','โหนดเริ่มต้น','a']],
+build(v){const s=v.src.trim().toLowerCase(),V=Object.keys(G.nodes);if(!V.includes(s))throw Error('ไม่มีโหนดนี้');
+ const inT=new Set([s]),best={},tE=[],st=[];let tot=0;
+ const upd=u=>{const c=[];for(const[x,w]of adj[u])if(!inT.has(x)&&(!best[x]||w<best[x].w)){best[x]={w,f:u};c.push(`${x}(${u}, ${w})`);}return c;};
+ const fr=()=>V.filter(x=>!inT.has(x)&&best[x]).map(x=>`${x}(${best[x].f}, ${best[x].w})`).join(', ');
+ const snap=(sel,cur,m)=>{const nc={},ec={},nl={};V.forEach(x=>{if(inT.has(x))nc[x]='nin';else if(best[x]){nc[x]='nfr';nl[x]=`(${best[x].f}, ${best[x].w})`;}else nl[x]='(−, ∞)';});
+  for(const x in best)if(!inT.has(x))ec[ek(x,best[x].f)]='cand';tE.forEach(e=>ec[e]='tree');if(sel)ec[sel]='sel';if(cur)nc[cur]='ncur';st.push({h:graphH({nc,ec,nl})+gLeg,m});};
+ upd(s);snap(null,s,`เริ่มที่ ${s} → fringe: ${fr()}`);
+ while(inT.size<V.length){let u=null;for(const x of V)if(!inT.has(x)&&best[x]&&(u===null||best[x].w<best[u].w))u=x;if(!u)break;
+  const e=ek(u,best[u].f);snap(e,u,`เลือก fringe ที่น้ำหนักน้อยที่สุด: <b>${u}(${best[u].f}, ${best[u].w})</b> → เพิ่มขอบ ${best[u].f}–${u}`);
+  inT.add(u);tE.push(e);tot+=best[u].w;const c=upd(u);
+  snap(null,u,`ย้าย ${u} เข้า tree แล้วอัปเดตผ่าน ${u}: ${c.length?c.join(', '):'ไม่มีอะไรเปลี่ยน'}<br>fringe ตอนนี้: ${fr()||'—'}`);}
+ snap(null,null,`MST เสร็จ! น้ำหนักรวม = <b>${tot}</b>`);return st;}});
+
+M.push({id:'kruskal',g:W9,name:"Kruskal's Algorithm (MST)",
+desc:`<b>Kruskal:</b> ① เรียงขอบทั้งหมดจากน้อยไปมาก ② ไล่เลือกทีละขอบ ถ้า<b>ไม่ทำให้เกิดวงจร</b>ก็รับไว้ (ตรวจด้วย Union-Find ว่าปลายทั้งสองอยู่คนละกลุ่มไหม) ③ หยุดเมื่อได้ |V| − 1 เส้น<br>
+ต่างจาก Prim ตรงที่ระหว่างทางอาจเป็น <i>ป่า</i> (หลายต้น) · <span class="f">O(|E| log |E|)</span>`,
+build(){const E=[...G.edges].sort((a,b)=>a[2]-b[2]||(a[0]+a[1]).localeCompare(b[0]+b[1])),V=Object.keys(G.nodes),par={};V.forEach(x=>par[x]=x);
+ const find=x=>par[x]===x?x:(par[x]=find(par[x]));const S=E.map(()=>'');let acc=0,tot=0;const st=[];
+ const comps=()=>{const g={};V.forEach(x=>{const r=find(x);(g[r]=g[r]||[]).push(x);});return Object.values(g).map(a=>'{'+a.join(',')+'}').join(' ');};
+ const snap=(ci,m)=>{const ec={},nc={};E.forEach((e,i)=>{if(S[i]==='done'){ec[e[0]+e[1]]='tree';nc[e[0]]=nc[e[1]]='nin';}});
+  if(ci!==null)ec[E[ci][0]+E[ci][1]]=S[ci]==='bad'?'rej':(S[ci]==='done'?'sel':'cand');
+  const list=`<div class="elist"><b>ขอบเรียงตามน้ำหนัก</b>${E.map((e,i)=>`<div class="cell ew ${i===ci&&!S[i]?'cur':S[i]}">${e[0]}${e[1]} : ${e[2]}</div>`).join('')}</div>`;
+  st.push({h:`<div class="flex">${graphH({nc,ec})}${list}</div>`+gLeg,m:m+`<br><small>กลุ่ม (Union-Find): ${comps()}</small>`});};
+ snap(null,'① เรียงขอบทั้งหมดจากน้อยไปมาก');
+ for(let i=0;i<E.length&&acc<V.length-1;i++){const[u,w,x]=E[i];snap(i,`พิจารณาขอบ <b>${u}${w}</b> (น้ำหนัก ${x}): ${u} อยู่กลุ่ม ${find(u)}, ${w} อยู่กลุ่ม ${find(w)}`);
+  if(find(u)!==find(w)){par[find(u)]=find(w);S[i]='done';acc++;tot+=x;snap(i,`คนละกลุ่ม → <b>รับขอบ ${u}${w}</b> (ได้แล้ว ${acc}/${V.length-1} เส้น)`);}
+  else{S[i]='bad';snap(i,`อยู่กลุ่มเดียวกัน → ถ้าเพิ่มจะเกิด<b>วงจร</b> → ไม่รับ`);}}
+ snap(null,`ครบ |V| − 1 = ${V.length-1} เส้น → MST น้ำหนักรวม = <b>${tot}</b>`);return st;}});
+
+M.push({id:'dijk',g:W9,name:"Dijkstra's Algorithm",
+desc:`<b>Single-source shortest paths:</b> หาระยะทางสั้นที่สุดจากโหนดต้นทางไปทุกโหนด (<b>น้ำหนักห้ามติดลบ</b>)<br>
+<b>ขั้นตอน:</b> เลือกโหนดที่ยังไม่เสร็จและมีระยะ d น้อยที่สุด → ถือว่าเสร็จ → <b>relax</b> โหนดข้างเคียง: <span class="f">ถ้า d(u) + w(u,x) &lt; d(x) → d(x) ← d(u) + w(u,x), p(x) ← u</span><br>
+label = (โหนดก่อนหน้า, ระยะ) · <span class="f">Θ(|V|²)</span> (weight matrix) หรือ <span class="f">O(|E| log |V|)</span> (adjacency list + min-heap)`,
+inputs:[['src','โหนดต้นทาง','a']],
+build(v){const s=v.src.trim().toLowerCase(),V=Object.keys(G.nodes);if(!V.includes(s))throw Error('ไม่มีโหนดนี้');
+ const d={},p={},done=new Set(),st=[];V.forEach(x=>d[x]=Infinity);d[s]=0;
+ const snap=(o,m)=>{const nc={},ec={},nl={};V.forEach(x=>{nc[x]=done.has(x)?'nin':(d[x]<Infinity?'nfr':'');nl[x]=`(${p[x]||'−'}, ${inf(d[x])})`;if(done.has(x)&&p[x])ec[ek(x,p[x])]='tree';});
+  if(o.cur)nc[o.cur]='ncur';if(o.e)ec[o.e]=o.ec||'cand';st.push({h:graphH({nc,ec,nl})+gLeg,m});};
+ snap({},`เริ่มที่ ${s}: d(${s}) = 0 ส่วนโหนดอื่น = ∞`);
+ while(done.size<V.length){let u=null;V.forEach(x=>{if(!done.has(x)&&d[x]<Infinity&&(u===null||d[x]<d[u]))u=x;});if(!u)break;done.add(u);
+  snap({cur:u},`เลือก <b>${u}</b> (d = ${d[u]} น้อยที่สุดในบรรดาที่ยังไม่เสร็จ) → ระยะนี้คือระยะสั้นที่สุดแล้ว`);
+  for(const[x,w]of adj[u]){if(done.has(x))continue;const nd=d[u]+w;
+   if(nd<d[x]){const o=d[x];d[x]=nd;p[x]=u;snap({cur:u,e:ek(u,x)},`Relax ${u}→${x}: ${d[u]} + ${w} = ${nd} &lt; ${inf(o)} → <b>อัปเดต ${x} = (${u}, ${nd})</b>`);}
+   else snap({cur:u,e:ek(u,x),ec:'rej'},`Relax ${u}→${x}: ${d[u]} + ${w} = ${nd} ≥ ${d[x]} → ไม่เปลี่ยน`);}}
+ const path=x=>{const a=[];while(x){a.unshift(x);x=p[x];}return a.join('→');};
+ snap({},'เสร็จ! เส้นทางสั้นที่สุด:<br>'+V.filter(x=>x!==s).map(x=>`${path(x)} = <b>${inf(d[x])}</b>`).join(' · '));return st;}});
+
+M.push({id:'huff',g:W9,name:'Huffman Trees & Codes',
+desc:`<b>Huffman:</b> ① ทุกสัญลักษณ์เป็นต้นไม้ 1 โหนด น้ำหนัก = ความถี่ ② รวม 2 ต้นที่<b>น้ำหนักน้อยที่สุด</b>เป็นต้นใหม่ (น้ำหนัก = ผลรวม) ทำซ้ำจนเหลือต้นเดียว ③ กิ่งซ้าย = 0 กิ่งขวา = 1<br>
+<b>Avg bits</b> = Σ (ความยาว code × ความถี่) · <b>Compression ratio</b> = (bits ของ fixed-length − avg) / bits ของ fixed-length × 100%<br>
+<span class="tip">💡 ผลในสไลด์: A=11, B=100, C=00, D=01, −=101</span>`,
+inputs:[['f','สัญลักษณ์:ความถี่','A:0.35, B:0.1, C:0.2, D:0.2, -:0.15']],
+build(v){const it=v.f.split(',').map(s=>{const[a,b]=s.split(':');return{sym:a.trim(),w:+b};});
+ let F=it.map(x=>({sym:x.sym,w:x.w,l:`${x.sym}<br><small>${x.w}</small>`})).sort((a,b)=>a.w-b.w);const st=[];
+ const H=()=>`<div class="forest">${F.map(treeH).join('')}</div>`;
+ st.push({h:H(),m:'เริ่ม: ทุกสัญลักษณ์เป็นต้นไม้ 1 โหนด เรียงตามความถี่'});
+ while(F.length>1){F[0].cls=F[1].cls='pick';st.push({h:H(),m:`เลือก 2 ต้นที่เบาที่สุด: ${F[0].w} และ ${F[1].w}`});
+  const a=F.shift(),b=F.shift();a.cls=b.cls='';a.e='0';b.e='1';const w=f2(a.w+b.w),nn={w,l:`${w}`,ch:[a,b],cls:'cur'};
+  let pos=F.findIndex(x=>x.w>w);if(pos<0)pos=F.length;F.splice(pos,0,nn);
+  st.push({h:H(),m:`รวมเป็นต้นใหม่ น้ำหนัก ${a.w} + ${b.w} = <b>${w}</b> (ซ้าย = 0, ขวา = 1) แล้วใส่กลับตามลำดับ`});nn.cls='';}
+ const codes={};const walk=(n,c)=>{if(!n.ch){codes[n.sym]=c||'0';n.cls='done';n.l=`${n.sym}<br><small>${c}</small>`;return;}walk(n.ch[0],c+'0');walk(n.ch[1],c+'1');};walk(F[0],'');
+ let avg=0;const rows=it.map(x=>{const c=codes[x.sym];avg+=c.length*x.w;return[x.w,c,c.length,f2(c.length*x.w)];});avg=f2(avg);
+ const fx=Math.ceil(Math.log2(it.length)),ratio=f2((fx-avg)/fx*100);
+ st.push({h:H()+matH(rows,it.map(x=>x.sym),['ความถี่','codeword','ความยาว','ความยาว×ความถี่'],{},'สัญลักษณ์'),
+  m:`Avg bits = Σ(ความยาว × ความถี่) = <b>${avg}</b> บิต/สัญลักษณ์ · fixed-length ต้องใช้ ${fx} บิต<br>Compression ratio = (${fx} − ${avg}) / ${fx} × 100 = <b>${ratio}%</b>`});return st;}});
+
+/* ================= PLAYER ================= */
+let steps=[],idx=0,timer=null,cur=null;
+function menu(){let h='',g='';M.forEach(m=>{if(m.g!==g){g=m.g;h+=`<div class="grp">${g}</div>`;}h+=`<button data-id="${m.id}">${m.name}</button>`;});
+ $('#menu').innerHTML=h;$('#menu').querySelectorAll('button').forEach(b=>b.onclick=()=>load(b.dataset.id));}
+function load(id){cur=M.find(x=>x.id===id);document.querySelectorAll('#menu button').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
+ $('#title').textContent=cur.name;$('#desc').innerHTML=cur.desc;
+ $('#inputs').innerHTML=(cur.inputs||[]).map(([k,l,d])=>`<label>${l}<input id="in_${k}" value="${d}"></label>`).join('')+(cur.inputs?'<button class="act" id="bBuild">สร้างแอนิเมชันใหม่</button>':'');
+ if(cur.inputs)$('#bBuild').onclick=rebuild;rebuild();}
+function rebuild(){stop();const v={};(cur.inputs||[]).forEach(([k])=>v[k]=$('#in_'+k).value);
+ try{steps=cur.build(v);}catch(e){steps=[{h:'<p>⚠️ ข้อมูลไม่ถูกต้อง</p>',m:e.message}];}idx=0;show();}
+function show(){const s=steps[idx],sg=$('#stage');sg.innerHTML=s.h;sg.classList.remove('anim');void sg.offsetWidth;sg.classList.add('anim');
+ $('#msg').innerHTML=s.m;$('#cnt').textContent=`ขั้นที่ ${idx+1} / ${steps.length}`;$('#bar').style.width=((idx+1)/steps.length*100)+'%';}
+function go(d){const n=Math.max(0,Math.min(steps.length-1,idx+d));if(n!==idx){idx=n;show();}}
+const delay=()=>3300-+$('#speed').value;
+function stop(){clearInterval(timer);timer=null;$('#bPlay').textContent='▶ เล่น';}
+function play(){if(timer){stop();return;}if(idx>=steps.length-1){idx=0;show();}$('#bPlay').textContent='⏸ หยุด';
+ timer=setInterval(()=>{if(idx>=steps.length-1){stop();return;}go(1);},delay());}
+$('#bPlay').onclick=play;$('#bNext').onclick=()=>{stop();go(1);};$('#bPrev').onclick=()=>{stop();go(-1);};$('#bReset').onclick=()=>{stop();idx=0;show();};
+$('#speed').oninput=()=>{if(timer){stop();play();}};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight'){stop();go(1);}else if(e.key==='ArrowLeft'){stop();go(-1);}else if(e.key===' '){e.preventDefault();play();}});
+menu();load('ccs');
+</script>
+</body>
+</html>
